@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# local-only project/meta docs, not pushed to GitHub
+CLAUDE.md
+ROADMAP.md
+Instructions.pdf
+Sentry_Phase1_Proposal.docx
+KNOWLEDGE_BASE.md
