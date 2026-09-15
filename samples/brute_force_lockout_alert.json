@@ -1,0 +1,7 @@
+{
+  "host": "vpn-gateway-3",
+  "id": "alert-2004",
+  "confidence": 0.91,
+  "severity": "high",
+  "user": "rpatel"
+}

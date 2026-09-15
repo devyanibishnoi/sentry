@@ -1,0 +1,7 @@
+{
+  "host": "workstation-47",
+  "id": "alert-1002",
+  "confidence": 0.42,
+  "severity": "low",
+  "user": "asmith"
+}

@@ -1,0 +1,6 @@
+on brute_force_detected:
+    if alert.confidence >= 0.7:
+        disable_user(alert.user) require alert.confidence >= 0.85
+    else:
+        notify_soc(alert.id) require approval
+    wait 10m

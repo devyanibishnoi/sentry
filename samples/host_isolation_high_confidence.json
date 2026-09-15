@@ -1,0 +1,7 @@
+{
+  "host": "workstation-12",
+  "id": "alert-1001",
+  "confidence": 0.95,
+  "severity": "high",
+  "user": "jdoe"
+}

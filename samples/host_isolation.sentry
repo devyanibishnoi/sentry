@@ -1,0 +1,6 @@
+on new_alert:
+    if alert.confidence >= 0.8:
+        isolate_host(alert.host) require alert.confidence >= 0.9
+    else:
+        notify_soc(alert.id) require approval
+    wait 5m
