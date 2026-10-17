@@ -1,7 +1,7 @@
 # Sentry
 
-A domain-specific language for security response playbooks, where gating —
-confidence thresholds and approval requirements — is a first-class grammar
+A domain-specific language for security response playbooks, where gating,
+confidence thresholds and approval requirements, is a first-class grammar
 construct instead of a policy layer bolted on by whatever platform executes
 the playbook.
 
@@ -17,10 +17,12 @@ on new_alert:
 Every action call can carry a `require` modifier directly in its syntax. A
 gate is either a comparison against the alert data (auto-executes if true,
 refused otherwise) or the bare word `approval` (always refused
-automatically — a human has to sign off). Every decision — executed,
-refused, or waited — is written to a structured audit log with a reason.
+automatically, a human has to sign off). Every decision, executed,
+refused, or waited, is written to a structured audit log with a reason.
 
 ## Setup
+
+Requires Python 3.9 or later.
 
 ```
 python3 -m venv .venv
@@ -48,7 +50,7 @@ python -m sentry trace <playbook.sentry> --alert <alert.json> [--event NAME] [--
 - `run` executes the playbook against the given alert and prints the audit
   log. Without `--event`, every `on` block in the file runs; with it, only
   the block whose name matches runs.
-- `trace` renders an HTML execution trace — the playbook's full branching
+- `trace` renders an HTML execution trace, the playbook's full branching
   structure with the actual taken path highlighted and the untaken branch
   dimmed, plus every action's outcome and reason. Opens in any browser,
   no dependencies.
@@ -61,7 +63,7 @@ python -m sentry trace samples/credential_compromise.sentry --alert samples/cred
 ```
 
 Any invalid playbook or alert file produces a one-line `error: ...` message
-on stderr with exit code 1 — never a raw traceback.
+on stderr with exit code 1, never a raw traceback.
 
 ## Running the tests
 
@@ -77,7 +79,7 @@ visualization, CLI, and boundary/complex-playbook cases.
 ```
 sentry/           interpreter package
   tokens.py        TokenType, Token
-  lexer.py         tokenize() — hand-written scanner
+  lexer.py         tokenize(), hand-written scanner
   ast_nodes.py     AST node dataclasses
   parser.py        recursive-descent parser
   symbol_table.py  valid actions + alert schema
@@ -93,6 +95,10 @@ docs/              formal grammar, implementation progress, performance note
 main.py            CLI entry point used for live demos
 ```
 
+## Final report
+
+The full final report, `Sentry_Final_Report.pdf`, is in the project root.
+
 ## Language reference
 
 The formal EBNF grammar is in `docs/GRAMMAR.md`. Valid actions and their
@@ -104,7 +110,7 @@ either a comparison (`alert.confidence >= 0.9`) or the literal word
 `approval`.
 
 **Valid actions:** `isolate_host`, `notify_soc`, `block_ip`,
-`quarantine_file`, `disable_user` — each takes one string argument.
+`quarantine_file`, `disable_user`, each takes one string argument.
 
 **Alert fields:** `alert.host`, `alert.id`, `alert.severity`, `alert.user`
 (strings), `alert.confidence` (number).
