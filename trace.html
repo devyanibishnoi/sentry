@@ -1,0 +1,17 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Sentry trace: new_alert</title>
+<style>
+body { font-family: Consolas, "Cascadia Code", monospace; background: #10151c; color: #dfe6ee;
+       padding: 2rem; line-height: 1.5; }
+h1 { font-size: 1.1rem; color: #8793a3; font-weight: normal; margin-bottom: 1.5rem; }
+.node { margin: 0.15rem 0; padding: 0.35rem 0.7rem; border-left: 3px solid #28323f; }
+.skipped { opacity: 0.4; }
+.tag { font-weight: bold; padding: 0.05rem 0.4rem; border-radius: 3px; font-size: 0.8rem; margin-right: 0.5rem; }
+.children { margin-left: 1.4rem; }
+.reason { color: #8793a3; }
+.cond { color: #e3a85c; }
+</style></head>
+<body>
+<h1>Sentry trace: new_alert</h1>
+<div class="node">on <b>new_alert</b><div class="children"><div class="node">if <span class="cond">alert.confidence >= 0.8</span> <span class="tag" style="background:#2f7a4d;color:#10151c">TRUE</span><div class="children"><div class="node"><span class="tag" style="background:#2f7a4d;color:#10151c">EXECUTED</span>isolate_host('workstation-12') <span class="reason">- gate satisfied: alert.confidence >= 0.9</span></div></div></div><div class="node">else<div class="children"><div class="node skipped"><span class="tag" style="background:#a13f34;color:#10151c">REFUSED</span>notify_soc('alert-1001') <span class="reason">- requires manual approval</span></div></div></div><div class="node">wait 5m</div></div></div>
+</body></html>

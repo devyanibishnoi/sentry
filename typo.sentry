@@ -1,0 +1,2 @@
+on x:
+ isolate_hst(alert.host)
