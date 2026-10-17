@@ -68,3 +68,20 @@ def test_invalid_operator_for_string_comparison_raises_semantic_error():
 def test_type_mismatch_in_gate_condition_raises_semantic_error():
     with pytest.raises(SemanticError, match="cannot compare"):
         _analyze('on x:\n    isolate_host(alert.host) require alert.host >= 5\n')
+
+
+def test_unknown_action_suggests_closest_match():
+    with pytest.raises(SemanticError, match="did you mean 'isolate_host'"):
+        _analyze("on x:\n    isolate_hst(alert.host)\n")
+
+
+def test_unknown_field_suggests_closest_match():
+    with pytest.raises(SemanticError, match="did you mean 'severity'"):
+        _analyze('on x:\n    isolate_host(alert.host)\n    if alert.sevrity == "high":\n        isolate_host(alert.host)\n')
+
+
+def test_semantic_error_carries_line_and_column():
+    with pytest.raises(SemanticError) as excinfo:
+        _analyze("on x:\n    nuke_everything(alert.host)\n")
+    assert excinfo.value.line == 2
+    assert excinfo.value.column == 5

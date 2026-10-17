@@ -107,7 +107,13 @@ class Parser:
             gate = self.parse_gate()
 
         self._expect(TokenType.NEWLINE)
-        return ActionCall(name=name_token.value, args=args, gate=gate)
+        return ActionCall(
+            name=name_token.value,
+            args=args,
+            gate=gate,
+            line=name_token.line,
+            column=name_token.column,
+        )
 
     # gate ::= "REQUIRE" ( comparison | "approval" )
     def parse_gate(self):
@@ -120,7 +126,7 @@ class Parser:
     # if_stmt ::= "IF" comparison ":" NEWLINE INDENT statement_list DEDENT
     #             [ "ELSE" ":" NEWLINE INDENT statement_list DEDENT ]
     def parse_if_stmt(self) -> IfElse:
-        self._expect(TokenType.IF)
+        if_token = self._expect(TokenType.IF)
         condition = self.parse_comparison()
         self._expect(TokenType.COLON)
         self._expect(TokenType.NEWLINE)
@@ -137,19 +143,30 @@ class Parser:
             else_body = self.parse_statement_list()
             self._expect(TokenType.DEDENT)
 
-        return IfElse(condition=condition, then_body=then_body, else_body=else_body)
+        return IfElse(
+            condition=condition,
+            then_body=then_body,
+            else_body=else_body,
+            line=if_token.line,
+            column=if_token.column,
+        )
 
     # wait_stmt ::= "WAIT" DURATION NEWLINE
     def parse_wait_stmt(self) -> WaitStmt:
-        self._expect(TokenType.WAIT)
+        wait_token = self._expect(TokenType.WAIT)
         duration_token = self._expect(TokenType.DURATION)
         self._expect(TokenType.NEWLINE)
         amount = int(duration_token.value[:-1])
         unit = duration_token.value[-1]
-        return WaitStmt(duration=Duration(amount=amount, unit=unit))
+        return WaitStmt(
+            duration=Duration(amount=amount, unit=unit),
+            line=wait_token.line,
+            column=wait_token.column,
+        )
 
     # comparison ::= expression comparator expression
     def parse_comparison(self) -> Comparison:
+        start_token = self._peek()
         left = self.parse_expression()
         operator_token = self._peek()
         if operator_token.type not in _COMPARATOR_TYPES:
@@ -161,7 +178,13 @@ class Parser:
             )
         self._advance()
         right = self.parse_expression()
-        return Comparison(left=left, operator=operator_token.value, right=right)
+        return Comparison(
+            left=left,
+            operator=operator_token.value,
+            right=right,
+            line=start_token.line,
+            column=start_token.column,
+        )
 
     # expression ::= field_access | literal
     def parse_expression(self):
@@ -185,7 +208,12 @@ class Parser:
             self._advance()
             field_token = self._expect(TokenType.IDENTIFIER)
             path.append(field_token.value)
-        return FieldAccess(root=root_token.value, path=path)
+        return FieldAccess(
+            root=root_token.value,
+            path=path,
+            line=root_token.line,
+            column=root_token.column,
+        )
 
     # literal ::= STRING | NUMBER
     def parse_literal(self) -> Literal:

@@ -31,6 +31,19 @@ def run(program: Program, event_name: str, alert: dict) -> AuditLog:
     return log
 
 
+def run_all(program: Program, alert: dict) -> AuditLog:
+    """Run every OnBlock in the program, regardless of its name.
+
+    Used by the CLI, where a playbook file is treated as "this is the
+    response already selected for this alert" rather than one of several
+    event handlers to dispatch between by name.
+    """
+    log = AuditLog()
+    for on_block in program.on_blocks:
+        _run_statements(on_block.body, alert, log)
+    return log
+
+
 def _run_statements(statements: list, alert: dict, log: AuditLog) -> None:
     for statement in statements:
         _run_statement(statement, alert, log)
@@ -104,14 +117,20 @@ def _eval_expression(expr, alert: dict):
 
 def _eval_field_access(field_access: FieldAccess, alert: dict):
     if field_access.root != "alert":
-        raise InterpreterError(f"Unknown variable '{field_access.root}'")
+        raise InterpreterError(
+            f"Unknown variable '{field_access.root}'", field_access.line, field_access.column
+        )
 
     value = alert
     seen = [field_access.root]
     for step in field_access.path:
         seen.append(step)
         if not isinstance(value, dict) or step not in value:
-            raise InterpreterError(f"Alert data is missing field '{'.'.join(seen)}'")
+            raise InterpreterError(
+                f"Alert data is missing field '{'.'.join(seen)}'",
+                field_access.line,
+                field_access.column,
+            )
         value = value[step]
     return value
 

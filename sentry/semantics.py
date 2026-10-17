@@ -1,3 +1,5 @@
+import difflib
+
 from sentry.ast_nodes import (
     ActionCall,
     ApprovalRequired,
@@ -13,6 +15,11 @@ from sentry.errors import SemanticError
 from sentry.symbol_table import ACTIONS, ALERT_SCHEMA
 
 _STRING_ONLY_OPERATORS = {"==", "!="}
+
+
+def _did_you_mean(name: str, candidates) -> str:
+    matches = difflib.get_close_matches(name, list(candidates), n=1, cutoff=0.6)
+    return f" (did you mean '{matches[0]}'?)" if matches else ""
 
 
 def analyze(program: Program) -> None:
@@ -43,13 +50,19 @@ def _check_statement(statement) -> None:
 
 def _check_action_call(call: ActionCall) -> None:
     if call.name not in ACTIONS:
-        raise SemanticError(f"Unknown action '{call.name}'")
+        raise SemanticError(
+            f"Unknown action '{call.name}'{_did_you_mean(call.name, ACTIONS)}",
+            call.line,
+            call.column,
+        )
 
     expected_types = ACTIONS[call.name]
     if len(call.args) != len(expected_types):
         raise SemanticError(
             f"'{call.name}' expects {len(expected_types)} argument(s), "
-            f"got {len(call.args)}"
+            f"got {len(call.args)}",
+            call.line,
+            call.column,
         )
 
     for arg, expected_type in zip(call.args, expected_types):
@@ -57,7 +70,9 @@ def _check_action_call(call: ActionCall) -> None:
         if actual_type != expected_type:
             raise SemanticError(
                 f"'{call.name}' expects a {expected_type} argument, "
-                f"got {actual_type}"
+                f"got {actual_type}",
+                call.line,
+                call.column,
             )
 
     if call.gate is not None:
@@ -79,13 +94,17 @@ def _check_comparison(comparison: Comparison) -> None:
 
     if left_type != right_type:
         raise SemanticError(
-            f"Malformed condition: cannot compare {left_type} to {right_type}"
+            f"Malformed condition: cannot compare {left_type} to {right_type}",
+            comparison.line,
+            comparison.column,
         )
 
     if left_type == "string" and comparison.operator not in _STRING_ONLY_OPERATORS:
         raise SemanticError(
             f"Malformed condition: '{comparison.operator}' is not valid for "
-            f"strings (only == and != are)"
+            f"strings (only == and != are)",
+            comparison.line,
+            comparison.column,
         )
 
 
@@ -101,7 +120,9 @@ def _check_field_access(field_access: FieldAccess) -> str:
     if field_access.root != "alert":
         raise SemanticError(
             f"Unknown variable '{field_access.root}' "
-            f"(only 'alert' is available inside an on block)"
+            f"(only 'alert' is available inside an on block)",
+            field_access.line,
+            field_access.column,
         )
 
     node = ALERT_SCHEMA
@@ -109,9 +130,18 @@ def _check_field_access(field_access: FieldAccess) -> str:
     for step in field_access.path:
         seen.append(step)
         if not isinstance(node, dict) or step not in node:
-            raise SemanticError(f"Unknown field '{'.'.join(seen)}'")
+            candidates = node.keys() if isinstance(node, dict) else []
+            raise SemanticError(
+                f"Unknown field '{'.'.join(seen)}'{_did_you_mean(step, candidates)}",
+                field_access.line,
+                field_access.column,
+            )
         node = node[step]
 
     if isinstance(node, dict):
-        raise SemanticError(f"'{'.'.join(seen)}' refers to a group of fields, not a single value")
+        raise SemanticError(
+            f"'{'.'.join(seen)}' refers to a group of fields, not a single value",
+            field_access.line,
+            field_access.column,
+        )
     return node

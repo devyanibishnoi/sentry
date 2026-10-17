@@ -6,6 +6,8 @@ from typing import Optional, Union
 class FieldAccess:
     root: str
     path: list = field(default_factory=list)
+    line: int = field(default=0, compare=False)
+    column: int = field(default=0, compare=False)
 
 
 @dataclass
@@ -21,6 +23,8 @@ class Comparison:
     left: Expression
     operator: str
     right: Expression
+    line: int = field(default=0, compare=False)
+    column: int = field(default=0, compare=False)
 
 
 @dataclass
@@ -36,6 +40,8 @@ class ActionCall:
     name: str
     args: list = field(default_factory=list)
     gate: Optional[Gate] = None
+    line: int = field(default=0, compare=False)
+    column: int = field(default=0, compare=False)
 
 
 @dataclass
@@ -47,6 +53,8 @@ class Duration:
 @dataclass
 class WaitStmt:
     duration: Duration
+    line: int = field(default=0, compare=False)
+    column: int = field(default=0, compare=False)
 
 
 @dataclass
@@ -54,6 +62,8 @@ class IfElse:
     condition: Comparison
     then_body: list
     else_body: Optional[list] = None
+    line: int = field(default=0, compare=False)
+    column: int = field(default=0, compare=False)
 
 
 Statement = Union[ActionCall, IfElse, WaitStmt]

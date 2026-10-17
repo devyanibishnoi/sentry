@@ -19,12 +19,22 @@ class ParseError(SentryError):
 
 
 class SemanticError(SentryError):
-    def __init__(self, message: str):
+    def __init__(self, message: str, line: int = None, column: int = None):
         self.message = message
-        super().__init__(message)
+        self.line = line
+        self.column = column
+        if line is not None:
+            super().__init__(f"{message} (line {line}, column {column})")
+        else:
+            super().__init__(message)
 
 
 class InterpreterError(SentryError):
-    def __init__(self, message: str):
+    def __init__(self, message: str, line: int = None, column: int = None):
         self.message = message
-        super().__init__(message)
+        self.line = line
+        self.column = column
+        if line is not None:
+            super().__init__(f"{message} (line {line}, column {column})")
+        else:
+            super().__init__(message)
